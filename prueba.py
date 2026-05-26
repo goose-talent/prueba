@@ -48,7 +48,9 @@ modo = st.radio(
         "Modificar inscripción"
     ]
 )
-datos_centro = None
+
+if "datos_centro" not in st.session_state:
+    st.session_state.datos_centro = None
 
 if modo == "Modificar inscripción":
 
@@ -64,13 +66,13 @@ if modo == "Modificar inscripción":
             WHERE correo = %s
         """, (correo_busqueda,))
 
-        datos_centro = cursor.fetchone()
+        resultado = cursor.fetchone()
 
-        if datos_centro:
+        if resultado:
+            st.session_state.datos_centro = resultado
             st.success("Inscripción encontrada")
         else:
             st.error("No existe ninguna inscripción con ese correo")
-
 st.markdown(
     "<span style='color:red'>*</span> Campos obligatorios",
     unsafe_allow_html=True
@@ -103,6 +105,8 @@ if modo == "Modificar inscripción":
         else:
             st.error("No existe ninguna inscripción con ese correo")
 st.subheader("Datos del centro")
+
+datos_centro = st.session_state.datos_centro
 
 denominacion = st.text_input(
     "Denominación del centro *",
