@@ -84,26 +84,7 @@ torneo = st.subheader("II Concurso De Oratoria Para Primaria JMD CHAMBERÍ *")
 torneo = "II Concurso De Oratoria Para Primaria JMD CHAMBERÍ"
 datos_centro = None
 
-if modo == "Modificar inscripción":
 
-    correo_busqueda = st.text_input(
-        "Correo electrónico del centro"
-    )
-
-    if st.button("Cargar inscripción"):
-
-        cursor.execute("""
-            SELECT *
-            FROM centros
-            WHERE correo = %s
-        """, (correo_busqueda,))
-
-        datos_centro = cursor.fetchone()
-
-        if datos_centro:
-            st.success("Inscripción encontrada")
-        else:
-            st.error("No existe ninguna inscripción con ese correo")
 st.subheader("Datos del centro")
 
 datos_centro = st.session_state.datos_centro
