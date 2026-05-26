@@ -29,10 +29,10 @@ def validar_dni_nie(documento):
         return letra == letra_correcta
     return False
 conexion = mysql.connector.connect(
-    host="zephyr.proxy.rlwy.net",
-    port=23549,
+    host="maglev.proxy.rlwy.net",
+    port=23345,
     user="root",
-    password="ndHcirMwLyyyBrFwHnyOlmDeJUVDrUzP",
+    password="mVzFQIbgGwVTqlbEhexLfCJRoCXcXHOQ",
     database="railway"
 )
 cursor = conexion.cursor()
