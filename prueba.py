@@ -51,6 +51,8 @@ modo = st.radio(
 
 if "datos_centro" not in st.session_state:
     st.session_state.datos_centro = None
+if "profesores" not in st.session_state:
+    st.session_state.profesores = []
 
 if modo == "Modificar inscripción":
 
@@ -73,6 +75,7 @@ if modo == "Modificar inscripción":
             st.success("Inscripción encontrada")
         else:
             st.error("No existe ninguna inscripción con ese correo")
+
 st.markdown(
     "<span style='color:red'>*</span> Campos obligatorios",
     unsafe_allow_html=True
