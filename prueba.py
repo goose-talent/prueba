@@ -177,7 +177,7 @@ direccion = st.text_input(
 
 localidad = st.text_input(
     "Localidad *",
-    value=datos_centro[3] if datos_centro else "",
+    value=datos_centro[4] if datos_centro else "",
     key="localidad_centro"
 )
 
@@ -245,26 +245,26 @@ for i in range(num_profesores):
     profesor = st.text_input(
         "Profesor/Formador *",
         value=datos_profesor.get("nombre", ""),
-        key=f"profesor_{i}"
+        key=f"profesor_modificar_{i}"
         )
 
     dni_profesor = st.text_input(
         "DNI/NIE *",
         value=datos_profesor.get("dni", ""),
-        key=f"dni_profesor_{i}"
+        key=f"dni_profesor_modificar_{i}"
         )
 
     telefono_profesor = st.text_input(
         "Teléfono del profesor *",
         value=datos_profesor.get("telefono", ""),
-        key=f"telefono_profesor_{i}"
+        key=f"telefono_profesor_modificar_{i}"
         )
     
 
     correo_profesor = st.text_input(
         "Correo electrónico del profesor *",
         value=datos_profesor.get("correo", ""),
-        key=f"correo_profesor_{i}"
+        key=f"correo_profesor_modificar_{i}"
     )
 
     profesores.append({
@@ -310,7 +310,7 @@ for i in range(num_equipos):
     nombre_equipo = st.text_input(
         "Nombre del equipo * ( Tiene que incluir el nombre del centro seguido de una letra identificativa. Ejemplo: CEIP Maximino A)",
         value=datos_equipo.get("nombre_equipo", ""),
-        key=f"equipo_{i}"
+        key=f"equipo_modificar_{i}"
     )
     miembros_cargados = datos_equipo.get("miembros", [])
     if modo == "Modificar inscripción" and miembros_cargados:
@@ -345,22 +345,22 @@ for i in range(num_equipos):
         nombre = st.text_input(
                 "Nombre y apellidos *",
                 value=datos_miembro.get("nombre", ""),
-                key=f"nombre_{i}_{j}"
+                key=f"nombre_modificar_{i}_{j}"
             )
         dni = st.text_input(
                 "DNI/NIE ",
                 value=datos_miembro.get("dni", ""),
-                key=f"dni_{i}_{j}"
+                key=f"dni_modificar_{i}_{j}"
             )
         curso = st.text_input(
                 "Curso *",
                 value=datos_miembro.get("curso", ""),
-                key=f"curso_{i}_{j}"
+                key=f"curso_modificar_{i}_{j}"
             )
         mail = st.text_input(
-                    "Correo electrónico",
-                    value=datos_miembro.get("mail", ""),
-                    key=f"mail_{i}_{j}"
+                "Correo electrónico",
+                value=datos_miembro.get("mail", ""),
+                key=f"mail_modificar_{i}_{j}"
             )
         roles = ["Debatiente", "Capitán", "Suplente"]
 
