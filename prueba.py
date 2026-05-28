@@ -146,6 +146,21 @@ if modo == "Modificar inscripción":
             st.session_state.equipos = equipos_cargados
 
             st.success("Inscripción encontrada")
+            for key in list(st.session_state.keys()):
+                if (
+                    key.startswith("profesor_")
+                    or key.startswith("dni_profesor_")
+                    or key.startswith("telefono_profesor_")
+                    or key.startswith("correo_profesor_")
+                    or key.startswith("equipo_")
+                    or key.startswith("nombre_")
+                    or key.startswith("dni_")
+                    or key.startswith("curso_")
+                    or key.startswith("mail_")
+                    or key.startswith("rol_")
+                    ):
+
+                    del st.session_state[key]
             st.rerun()
         else:
             st.error("No existe ninguna inscripción con ese correo")
