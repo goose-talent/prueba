@@ -149,7 +149,7 @@ if modo == "Modificar inscripción":
             keys_a_conservar = {"datos_centro", "profesores", "equipos"}
             for key in list(st.session_state.keys()):
                 if key not in keys_a_conservar:
-                del st.session_state[key]
+                    del st.session_state[key]
 
             st.rerun()
         else:
