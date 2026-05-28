@@ -99,29 +99,29 @@ if modo == "Modificar inscripción":
                 ORDER BY numero_equipo
             """, (centro_id,))
 
-        equipos_db = cursor.fetchall()
+            equipos_db = cursor.fetchall()
 
-        equipos_cargados = []
+            equipos_cargados = []
 
-        for equipo in equipos_db:
+            for equipo in equipos_db:
 
-            equipo_id = equipo[0]
+                equipo_id = equipo[0]
 
-            cursor.execute("""
-                SELECT
-                    numero_participante,
-                    nombre,
-                    apellidos,
-                    dni,
-                    curso,
-                    correo,
-                    rol
-                FROM debatientes
-                WHERE equipo_id = %s
-                ORDER BY numero_participante
-            """, (equipo_id,))
+                cursor.execute("""
+                    SELECT
+                        numero_participante,
+                        nombre,
+                        apellidos,
+                        dni,
+                        curso,
+                        correo,
+                        rol
+                    FROM debatientes
+                    WHERE equipo_id = %s
+                    ORDER BY numero_participante
+                """, (equipo_id,))
 
-            debatientes_db = cursor.fetchall()
+                debatientes_db = cursor.fetchall()
 
             miembros = []
 
