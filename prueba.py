@@ -214,7 +214,7 @@ if modo == "Modificar inscripción" and profesores_cargados:
 
     num_profesores = len(profesores_cargados)
 
-    st.selectbox(
+    num_profesores = st.selectbox(
         "Número de profesores/formadores",
         [1, 2, 3],
         index=num_profesores - 1,
@@ -282,7 +282,7 @@ if modo == "Modificar inscripción" and equipos_cargados:
 
     num_equipos = len(equipos_cargados)
 
-    st.selectbox(
+    num_equipos = st.selectbox(
         "Número de equipos",
         [1, 2, 3, 4, 5, 6],
         index=num_equipos - 1,
@@ -318,7 +318,7 @@ for i in range(num_equipos):
 
         num_miembros = len(miembros_cargados)
 
-        st.selectbox(
+        num_miembros = st.selectbox(
             "Número de integrantes",
             [1, 2, 3, 4, 5, 6],
             index=num_miembros - 1,
@@ -377,7 +377,7 @@ for i in range(num_equipos):
             "Rol *",
             roles,
             index=indice_rol,
-            key=f"rol_{i}_{j}"
+            key=f"rol_modificar_{i}_{j}"
     )
         miembros.append({
             "numero_participante": j + 1,
