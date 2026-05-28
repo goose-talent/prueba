@@ -72,33 +72,32 @@ if modo == "Modificar inscripción":
 
         resultado = cursor.fetchone()
 
-       if resultado:
-        st.session_state.datos_centro = resultado
-        centro_id = resultado[0]
-        cursor.execute("""
-            SELECT nombre, dni, telefono, correo
-            FROM profesores
-            WHERE centro_id = %s
-        """, (centro_id,))
+        if resultado:
+            st.session_state.datos_centro = resultado
+            centro_id = resultado[0]
+            cursor.execute("""
+                SELECT nombre, dni, telefono, correo
+                FROM profesores
+                WHERE centro_id = %s
+            """, (centro_id,))
 
-        profesores_db = cursor.fetchall()
+            profesores_db = cursor.fetchall()
 
-        st.session_state.profesores = [
-            {
+            st.session_state.profesores = [{
                 "nombre": p[0],
                 "dni": p[1],
                 "telefono": p[2],
                 "correo": p[3]
             }
             for p in profesores_db
-    ]
+            ]
 
-        cursor.execute("""
-            SELECT id, numero_equipo, nombre_equipo
-            FROM equipos
-            WHERE centro_id = %s
-            ORDER BY numero_equipo
-        """, (centro_id,))
+            cursor.execute("""
+                SELECT id, numero_equipo, nombre_equipo
+                FROM equipos
+                WHERE centro_id = %s
+                ORDER BY numero_equipo
+            """, (centro_id,))
 
         equipos_db = cursor.fetchall()
 
@@ -294,18 +293,19 @@ for i in range(num_equipos):
     nombre_equipo = st.text_input(
         "Nombre del equipo * ( Tiene que incluir el nombre del centro seguido de una letra identificativa. Ejemplo: CEIP Maximino A)",
         value=datos_equipo.get("nombre_equipo", ""),
-    key=f"equipo_{i}"
+        key=f"equipo_{i}"
     )
     miembros_cargados = datos_equipo.get("miembros", [])
     num_miembros_default = (
         len(miembros_cargados)
-        if miembros_cargados        else 3
+        if miembros_cargados        
+        else 3
     )
     num_miembros = st.selectbox(
         "Número de integrantes",
         [1, 2, 3,4,5,6],
         index=num_miembros_default - 1,
-        key=f"num_miembros_{i}" 
+        key=f"num_miembros_{i}")
 
     miembros = []
     for j in range(num_miembros):
