@@ -167,60 +167,68 @@ datos_centro = st.session_state.datos_centro
 
 denominacion = st.text_input(
     "Denominación del centro *",
-    value=datos_centro[2] if datos_centro else ""
+    value=datos_centro[1] if datos_centro else ""
 )
 
 direccion = st.text_input(
     "Dirección *",
-    value=datos_centro[3] if datos_centro else ""
+    value=datos_centro[2] if datos_centro else ""
 )
 
 localidad = st.text_input(
     "Localidad *",
-    value=datos_centro[4] if datos_centro else "",
+    value=datos_centro[3] if datos_centro else "",
     key="localidad_centro"
 )
 
 provincia = st.text_input(
     "Provincia *",
-    value=datos_centro[5] if datos_centro else ""
+    value=datos_centro[4] if datos_centro else ""
 )
 
 codigo_postal = st.text_input(
     "Código postal *",
-    value=datos_centro[6] if datos_centro else ""
+    value=datos_centro[5] if datos_centro else ""
 )
 
 telefono_centro = st.text_input(
     "Teléfono *",
-    value=datos_centro[7] if datos_centro else ""
+    value=datos_centro[6] if datos_centro else ""
 )
 
 correo_centro = st.text_input(
     "Correo electrónico *",
-    value=datos_centro[8] if datos_centro else ""
+    value=datos_centro[7] if datos_centro else ""
 )
 
 director = st.text_input(
     "Director del centro *",
-    value=datos_centro[9] if datos_centro else ""
+    value=datos_centro[8] if datos_centro else ""
 )
 
 st.subheader("Datos de la convocatoria")
 profesores_cargados = st.session_state.profesores
 
-num_profesores_default = (
-    len(profesores_cargados)
-    if profesores_cargados
-    else 1
-)
+if modo == "Modificar inscripción" and profesores_cargados:
 
-num_profesores = st.selectbox(
-    "Número de profesores/formadores",
-    [1, 2, 3],
-    index=num_profesores_default - 1,
-    key="select_profesores"
-)
+    num_profesores = len(profesores_cargados)
+
+    st.selectbox(
+        "Número de profesores/formadores",
+        [1, 2, 3],
+        index=num_profesores - 1,
+        disabled=True,
+        key="select_profesores"
+    )
+
+else:
+
+    num_profesores = st.selectbox(
+        "Número de profesores/formadores",
+        [1, 2, 3],
+        index=0,
+        key="select_profesores"
+    )
     
 
 profesores = []
@@ -269,18 +277,26 @@ for i in range(num_profesores):
 st.subheader("Equipos participantes")
 equipos_cargados = st.session_state.equipos
 
-num_equipos_default = (
-    len(equipos_cargados)
-    if equipos_cargados
-    else 1
-)
+if modo == "Modificar inscripción" and equipos_cargados:
 
-num_equipos = st.selectbox(
-    "Número de equipos",
-    [1, 2, 3, 4,5,6],
-    index=num_equipos_default - 1,
-    key="select_equipos"
-)
+    num_equipos = len(equipos_cargados)
+
+    st.selectbox(
+        "Número de equipos",
+        [1, 2, 3, 4, 5, 6],
+        index=num_equipos - 1,
+        disabled=True,
+        key="select_equipos"
+    )
+
+else:
+
+    num_equipos = st.selectbox(
+        "Número de equipos",
+        [1, 2, 3, 4, 5, 6],
+        index=0,
+        key="select_equipos"
+    )
 equipos = []
 for i in range(num_equipos):
     datos_equipo = (
@@ -297,16 +313,26 @@ for i in range(num_equipos):
         key=f"equipo_{i}"
     )
     miembros_cargados = datos_equipo.get("miembros", [])
-    num_miembros_default = (
-        len(miembros_cargados)
-        if miembros_cargados        
-        else 3
-    )
-    num_miembros = st.selectbox(
+    if modo == "Modificar inscripción" and miembros_cargados:
+
+        num_miembros = len(miembros_cargados)
+
+        st.selectbox(
+            "Número de integrantes",
+            [1, 2, 3, 4, 5, 6],
+            index=num_miembros - 1,
+            disabled=True,
+            key=f"num_miembros_{i}"
+        )
+
+    else:
+
+        num_miembros = st.selectbox(
         "Número de integrantes",
-        [1, 2, 3,4,5,6],
-        index=num_miembros_default - 1,
-        key=f"num_miembros_select_{i}")
+        [1, 2, 3, 4, 5, 6],
+        index=2,
+        key=f"num_miembros_{i}"
+        )
 
     miembros = []
     for j in range(num_miembros):
