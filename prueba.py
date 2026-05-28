@@ -53,6 +53,8 @@ if "datos_centro" not in st.session_state:
     st.session_state.datos_centro = None
 if "profesores" not in st.session_state:
     st.session_state.profesores = []
+if "equipos" not in st.session_state:
+    st.session_state.equipos = []
 
 if modo == "Modificar inscripción":
 
@@ -70,11 +72,84 @@ if modo == "Modificar inscripción":
 
         resultado = cursor.fetchone()
 
-        if resultado:
-            st.session_state.datos_centro = resultado
-            st.success("Inscripción encontrada")
-        else:
-            st.error("No existe ninguna inscripción con ese correo")
+       if resultado:
+        st.session_state.datos_centro = resultado
+        centro_id = resultado[0]
+        cursor.execute("""
+            SELECT nombre, dni, telefono, correo
+            FROM profesores
+            WHERE centro_id = %s
+        """, (centro_id,))
+
+        profesores_db = cursor.fetchall()
+
+        st.session_state.profesores = [
+            {
+                "nombre": p[0],
+                "dni": p[1],
+                "telefono": p[2],
+                "correo": p[3]
+            }
+            for p in profesores_db
+    ]
+
+        cursor.execute("""
+            SELECT id, numero_equipo, nombre_equipo
+            FROM equipos
+            WHERE centro_id = %s
+            ORDER BY numero_equipo
+        """, (centro_id,))
+
+        equipos_db = cursor.fetchall()
+
+        equipos_cargados = []
+
+        for equipo in equipos_db:
+
+            equipo_id = equipo[0]
+
+            cursor.execute("""
+                SELECT
+                    numero_participante,
+                    nombre,
+                    apellidos,
+                    dni,
+                    curso,
+                    correo,
+                    rol
+                FROM debatientes
+                WHERE equipo_id = %s
+                ORDER BY numero_participante
+            """, (equipo_id,))
+
+            debatientes_db = cursor.fetchall()
+
+            miembros = []
+
+            for d in debatientes_db:
+
+                nombre_completo = f"{d[1]} {d[2]}".strip()
+
+                miembros.append({
+                    "numero_participante": d[0],
+                    "nombre": nombre_completo,
+                    "dni": d[3],
+                    "curso": d[4],
+                    "mail": d[5],
+                    "rol": d[6]
+                })
+
+            equipos_cargados.append({
+                "numero_equipo": equipo[1],
+                "nombre_equipo": equipo[2],
+                "miembros": miembros
+            })
+
+        st.session_state.equipos = equipos_cargados
+
+        st.success("Inscripción encontrada")
+    else:
+        st.error("No existe ninguna inscripción con ese correo")
 
 st.markdown(
     "<span style='color:red'>*</span> Campos obligatorios",
@@ -134,35 +209,54 @@ director = st.text_input(
 )
 
 st.subheader("Datos de la convocatoria")
+profesores_cargados = st.session_state.profesores
+
+num_profesores_default = (
+    len(profesores_cargados)
+    if profesores_cargados
+    else 1
+)
+
 num_profesores = st.selectbox(
     "Número de profesores/formadores",
     [1, 2, 3],
-    index=0
-    )
+    index=num_profesores_default - 1
+)
+    
 
 profesores = []
 
 for i in range(num_profesores):
+    datos_profesor = (
+        st.session_state.profesores[i]
+        if i < len(st.session_state.profesores)
+        else {}
+    )
 
     st.markdown(f"### Profesor/Formador {i+1}")
 
     profesor = st.text_input(
         "Profesor/Formador *",
+        value=datos_profesor.get("nombre", ""),
         key=f"profesor_{i}"
-    )
+        )
 
     dni_profesor = st.text_input(
         "DNI/NIE *",
+        value=datos_profesor.get("dni", ""),
         key=f"dni_profesor_{i}"
-    )
+        )
 
     telefono_profesor = st.text_input(
         "Teléfono del profesor *",
+        value=datos_profesor.get("telefono", ""),
         key=f"telefono_profesor_{i}"
-    )
+        )
+    
 
     correo_profesor = st.text_input(
         "Correo electrónico del profesor *",
+        value=datos_profesor.get("correo", ""),
         key=f"correo_profesor_{i}"
     )
 
@@ -174,49 +268,89 @@ for i in range(num_profesores):
     })
 
 st.subheader("Equipos participantes")
+equipos_cargados = st.session_state.equipos
+
+num_equipos_default = (
+    len(equipos_cargados)
+    if equipos_cargados
+    else 1
+)
+
 num_equipos = st.selectbox(
     "Número de equipos",
-    [1, 2, 3,4],
-    index=0
-    )
+    [1, 2, 3, 4,5,6],
+    index=num_equipos_default - 1
+)
 equipos = []
 for i in range(num_equipos):
+    datos_equipo = (
+        st.session_state.equipos[i]
+        if i < len(st.session_state.equipos)
+        else {}
+    )
     st.markdown("---")
     st.markdown(f"## Equipo {i+1}")
+    
     nombre_equipo = st.text_input(
         "Nombre del equipo * ( Tiene que incluir el nombre del centro seguido de una letra identificativa. Ejemplo: CEIP Maximino A)",
+        value=datos_equipo.get("nombre_equipo", ""),
     key=f"equipo_{i}"
     )
+    miembros_cargados = datos_equipo.get("miembros", [])
+    num_miembros_default = (
+        len(miembros_cargados)
+        if miembros_cargados        else 3
+    )
     num_miembros = st.selectbox(
-        f"Número de integrantes del equipo {i+1}",
-        [1, 2, 3, 4, 5, 6],
-        key=f"miembros_{i}"
-        )
+        "Número de integrantes",
+        [1, 2, 3,4,5,6],
+        index=num_miembros_default - 1,
+        key=f"num_miembros_{i}" 
 
     miembros = []
     for j in range(num_miembros):
+        datos_miembro = (
+            miembros_cargados[j]
+            if j < len(miembros_cargados)
+            else {}
+        )
         st.markdown(f" Integrante {j+1}")
         nombre = st.text_input(
                 "Nombre y apellidos *",
+                value=datos_miembro.get("nombre", ""),
                 key=f"nombre_{i}_{j}"
             )
         dni = st.text_input(
                 "DNI/NIE ",
+                value=datos_miembro.get("dni", ""),
                 key=f"dni_{i}_{j}"
             )
         curso = st.text_input(
                 "Curso *",
+                value=datos_miembro.get("curso", ""),
                 key=f"curso_{i}_{j}"
             )
         mail = st.text_input(
                     "Correo electrónico",
+                    value=datos_miembro.get("mail", ""),
                     key=f"mail_{i}_{j}"
             )
+        roles = ["Debatiente", "Capitán", "Suplente"]
+
+        rol_actual = datos_miembro.get("rol", "Debatiente")
+
+        indice_rol = (
+            roles.index(rol_actual)
+            if rol_actual in roles
+            else 0
+    )
+
         rol = st.selectbox(
-                "Rol *",
-                ["Debatiente", "Capitán", "Suplente"],
-                key=f"rol_{i}_{j}"
-            ) 
+            "Rol *",
+            roles,
+            index=indice_rol,
+            key=f"rol_{i}_{j}"
+    )
         miembros.append({
             "numero_participante": j + 1,
             "nombre": nombre,
