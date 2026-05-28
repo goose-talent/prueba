@@ -167,43 +167,43 @@ datos_centro = st.session_state.datos_centro
 
 denominacion = st.text_input(
     "Denominación del centro *",
-    value=datos_centro[1] if datos_centro else ""
+    value=datos_centro[2] if datos_centro else ""
 )
 
 direccion = st.text_input(
     "Dirección *",
-    value=datos_centro[2] if datos_centro else ""
+    value=datos_centro[3] if datos_centro else ""
 )
 
 localidad = st.text_input(
     "Localidad *",
-    value=datos_centro[3] if datos_centro else "",
+    value=datos_centro[4] if datos_centro else "",
     key="localidad_centro"
 )
 
 provincia = st.text_input(
     "Provincia *",
-    value=datos_centro[4] if datos_centro else ""
+    value=datos_centro[5] if datos_centro else ""
 )
 
 codigo_postal = st.text_input(
     "Código postal *",
-    value=datos_centro[5] if datos_centro else ""
+    value=datos_centro[6] if datos_centro else ""
 )
 
 telefono_centro = st.text_input(
     "Teléfono *",
-    value=datos_centro[6] if datos_centro else ""
+    value=datos_centro[7] if datos_centro else ""
 )
 
 correo_centro = st.text_input(
     "Correo electrónico *",
-    value=datos_centro[7] if datos_centro else ""
+    value=datos_centro[8] if datos_centro else ""
 )
 
 director = st.text_input(
     "Director del centro *",
-    value=datos_centro[8] if datos_centro else ""
+    value=datos_centro[9] if datos_centro else ""
 )
 
 st.subheader("Datos de la convocatoria")
@@ -218,7 +218,8 @@ num_profesores_default = (
 num_profesores = st.selectbox(
     "Número de profesores/formadores",
     [1, 2, 3],
-    index=num_profesores_default - 1
+    index=num_profesores_default - 1,
+    key="select_profesores"
 )
     
 
@@ -277,7 +278,8 @@ num_equipos_default = (
 num_equipos = st.selectbox(
     "Número de equipos",
     [1, 2, 3, 4,5,6],
-    index=num_equipos_default - 1
+    index=num_equipos_default - 1,
+    key="select_equipos"
 )
 equipos = []
 for i in range(num_equipos):
@@ -304,7 +306,7 @@ for i in range(num_equipos):
         "Número de integrantes",
         [1, 2, 3,4,5,6],
         index=num_miembros_default - 1,
-        key=f"num_miembros_{i}")
+        key=f"num_miembros_select_{i}")
 
     miembros = []
     for j in range(num_miembros):
