@@ -146,6 +146,7 @@ if modo == "Modificar inscripción":
             st.session_state.equipos = equipos_cargados
 
             st.success("Inscripción encontrada")
+            st.rerun()
         else:
             st.error("No existe ninguna inscripción con ese correo")
 
