@@ -123,32 +123,31 @@ if modo == "Modificar inscripción":
 
                 debatientes_db = cursor.fetchall()
 
-            miembros = []
+                miembros = []
 
-            for d in debatientes_db:
+                for d in debatientes_db:
 
-                nombre_completo = f"{d[1]} {d[2]}".strip()
+                    nombre_completo = f"{d[1]} {d[2]}".strip()
 
-                miembros.append({
-                    "numero_participante": d[0],
-                    "nombre": nombre_completo,
-                    "dni": d[3],
-                    "curso": d[4],
-                    "mail": d[5],
-                    "rol": d[6]
+                    miembros.append({
+                        "numero_participante": d[0],
+                        "nombre": nombre_completo,
+                        "dni": d[3],
+                        "curso": d[4],
+                        "mail": d[5],
+                        "rol": d[6]
+                    })
+
+                equipos_cargados.append({
+                    "numero_equipo": equipo[1],
+                    "nombre_equipo": equipo[2],
+                    "miembros": miembros
                 })
+            st.session_state.equipos = equipos_cargados
 
-            equipos_cargados.append({
-                "numero_equipo": equipo[1],
-                "nombre_equipo": equipo[2],
-                "miembros": miembros
-            })
-
-        st.session_state.equipos = equipos_cargados
-
-        st.success("Inscripción encontrada")
-    else:
-        st.error("No existe ninguna inscripción con ese correo")
+            st.success("Inscripción encontrada")
+        else:
+            st.error("No existe ninguna inscripción con ese correo")
 
 st.markdown(
     "<span style='color:red'>*</span> Campos obligatorios",
