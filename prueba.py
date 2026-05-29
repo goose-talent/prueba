@@ -35,7 +35,45 @@ conexion = mysql.connector.connect(
     password=st.secrets["MYSQL_PASSWORD"],
     database=st.secrets["MYSQL_DATABASE"]
 )
-cursor = conexion.cursor()
+cursor = conexion.cursor(buffered=True)
+
+def texto(valor):
+    return "" if valor is None else str(valor)
+
+def cargar_widgets_desde_session_state():
+    roles_validos = ["Debatiente", "Capitán", "Suplente"]
+    version_carga = st.session_state.get("version_carga", 0)
+
+    st.session_state[f"select_profesores_{version_carga}"] = max(
+        1,
+        min(len(st.session_state.profesores), 3)
+    )
+    st.session_state[f"select_equipos_{version_carga}"] = max(
+        1,
+        min(len(st.session_state.equipos), 6)
+    )
+
+    for i, profesor in enumerate(st.session_state.profesores):
+        st.session_state[f"profesor_modificar_{version_carga}_{i}"] = texto(profesor.get("nombre"))
+        st.session_state[f"dni_profesor_modificar_{version_carga}_{i}"] = texto(profesor.get("dni"))
+        st.session_state[f"telefono_profesor_modificar_{version_carga}_{i}"] = texto(profesor.get("telefono"))
+        st.session_state[f"correo_profesor_modificar_{version_carga}_{i}"] = texto(profesor.get("correo"))
+
+    for i, equipo in enumerate(st.session_state.equipos):
+        miembros = equipo.get("miembros", [])
+        st.session_state[f"equipo_modificar_{version_carga}_{i}"] = texto(equipo.get("nombre_equipo"))
+        st.session_state[f"num_miembros_{version_carga}_{i}"] = max(1, min(len(miembros), 6))
+
+        for j, miembro in enumerate(miembros):
+            rol = miembro.get("rol", "Debatiente")
+            if rol not in roles_validos:
+                rol = "Debatiente"
+
+            st.session_state[f"nombre_modificar_{version_carga}_{i}_{j}"] = texto(miembro.get("nombre"))
+            st.session_state[f"dni_modificar_{version_carga}_{i}_{j}"] = texto(miembro.get("dni"))
+            st.session_state[f"curso_modificar_{version_carga}_{i}_{j}"] = texto(miembro.get("curso"))
+            st.session_state[f"mail_modificar_{version_carga}_{i}_{j}"] = texto(miembro.get("mail"))
+            st.session_state[f"rol_modificar_{version_carga}_{i}_{j}"] = rol
 
 col1, col2, col3 = st.columns([1,2,1])
 with col2:
@@ -46,7 +84,8 @@ modo = st.radio(
     [
         "Nueva inscripción",
         "Modificar inscripción"
-    ]
+    ],
+    key="modo"
 )
 
 if "datos_centro" not in st.session_state:
@@ -55,6 +94,8 @@ if "profesores" not in st.session_state:
     st.session_state.profesores = []
 if "equipos" not in st.session_state:
     st.session_state.equipos = []
+if "version_carga" not in st.session_state:
+    st.session_state.version_carga = 0
 
 if modo == "Modificar inscripción":
 
@@ -68,17 +109,21 @@ if modo == "Modificar inscripción":
             SELECT *
             FROM centros
             WHERE correo = %s
+            ORDER BY id DESC
+            LIMIT 1
         """, (correo_busqueda,))
 
         resultado = cursor.fetchone()
 
         if resultado:
+            st.session_state.modo = "Modificar inscripción"
             st.session_state.datos_centro = resultado
             centro_id = resultado[0]
             cursor.execute("""
                 SELECT nombre, dni, telefono, correo
                 FROM profesores
                 WHERE centro_id = %s
+                ORDER BY id
             """, (centro_id,))
 
             profesores_db = cursor.fetchall()
@@ -146,11 +191,13 @@ if modo == "Modificar inscripción":
             st.session_state.equipos = equipos_cargados
 
             st.success("Inscripción encontrada")
-            keys_a_conservar = {"datos_centro", "profesores", "equipos"}
+            st.session_state.version_carga += 1
+            keys_a_conservar = {"modo", "datos_centro", "profesores", "equipos", "version_carga"}
             for key in list(st.session_state.keys()):
                 if key not in keys_a_conservar:
                     del st.session_state[key]
 
+            cargar_widgets_desde_session_state()
             st.rerun()
         else:
             st.error("No existe ninguna inscripción con ese correo")
@@ -214,6 +261,7 @@ director = st.text_input(
 
 st.subheader("Datos de la convocatoria")
 profesores_cargados = st.session_state.profesores
+version_carga = st.session_state.version_carga
 
 if modo == "Modificar inscripción" and profesores_cargados:
 
@@ -224,7 +272,7 @@ if modo == "Modificar inscripción" and profesores_cargados:
         [1, 2, 3],
         index=num_profesores - 1,
         disabled=True,
-        key="select_profesores"
+        key=f"select_profesores_{version_carga}"
     )
 
 else:
@@ -233,7 +281,7 @@ else:
         "Número de profesores/formadores",
         [1, 2, 3],
         index=0,
-        key="select_profesores"
+        key=f"select_profesores_{version_carga}"
     )
     
 
@@ -251,26 +299,26 @@ for i in range(num_profesores):
     profesor = st.text_input(
         "Profesor/Formador *",
         value=datos_profesor.get("nombre", ""),
-        key=f"profesor_modificar_{i}"
+        key=f"profesor_modificar_{version_carga}_{i}"
         )
 
     dni_profesor = st.text_input(
         "DNI/NIE *",
         value=datos_profesor.get("dni", ""),
-        key=f"dni_profesor_modificar_{i}"
+        key=f"dni_profesor_modificar_{version_carga}_{i}"
         )
 
     telefono_profesor = st.text_input(
         "Teléfono del profesor *",
         value=datos_profesor.get("telefono", ""),
-        key=f"telefono_profesor_modificar_{i}"
+        key=f"telefono_profesor_modificar_{version_carga}_{i}"
         )
     
 
     correo_profesor = st.text_input(
         "Correo electrónico del profesor *",
         value=datos_profesor.get("correo", ""),
-        key=f"correo_profesor_modificar_{i}"
+        key=f"correo_profesor_modificar_{version_carga}_{i}"
     )
 
     profesores.append({
@@ -292,7 +340,7 @@ if modo == "Modificar inscripción" and equipos_cargados:
         [1, 2, 3, 4, 5, 6],
         index=num_equipos - 1,
         disabled=True,
-        key="select_equipos"
+        key=f"select_equipos_{version_carga}"
     )
 
 else:
@@ -301,7 +349,7 @@ else:
         "Número de equipos",
         [1, 2, 3, 4, 5, 6],
         index=0,
-        key="select_equipos"
+        key=f"select_equipos_{version_carga}"
     )
 equipos = []
 for i in range(num_equipos):
@@ -316,7 +364,7 @@ for i in range(num_equipos):
     nombre_equipo = st.text_input(
         "Nombre del equipo * ( Tiene que incluir el nombre del centro seguido de una letra identificativa. Ejemplo: CEIP Maximino A)",
         value=datos_equipo.get("nombre_equipo", ""),
-        key=f"equipo_modificar_{i}"
+        key=f"equipo_modificar_{version_carga}_{i}"
     )
     miembros_cargados = datos_equipo.get("miembros", [])
     if modo == "Modificar inscripción" and miembros_cargados:
@@ -328,7 +376,7 @@ for i in range(num_equipos):
             [1, 2, 3, 4, 5, 6],
             index=num_miembros - 1,
             disabled=True,
-            key=f"num_miembros_{i}"
+            key=f"num_miembros_{version_carga}_{i}"
         )
 
     else:
@@ -337,7 +385,7 @@ for i in range(num_equipos):
         "Número de integrantes",
         [1, 2, 3, 4, 5, 6],
         index=2,
-        key=f"num_miembros_{i}"
+        key=f"num_miembros_{version_carga}_{i}"
         )
 
     miembros = []
@@ -351,22 +399,22 @@ for i in range(num_equipos):
         nombre = st.text_input(
                 "Nombre y apellidos *",
                 value=datos_miembro.get("nombre", ""),
-                key=f"nombre_modificar_{i}_{j}"
+                key=f"nombre_modificar_{version_carga}_{i}_{j}"
             )
         dni = st.text_input(
                 "DNI/NIE ",
                 value=datos_miembro.get("dni", ""),
-                key=f"dni_modificar_{i}_{j}"
+                key=f"dni_modificar_{version_carga}_{i}_{j}"
             )
         curso = st.text_input(
                 "Curso *",
                 value=datos_miembro.get("curso", ""),
-                key=f"curso_modificar_{i}_{j}"
+                key=f"curso_modificar_{version_carga}_{i}_{j}"
             )
         mail = st.text_input(
                 "Correo electrónico",
                 value=datos_miembro.get("mail", ""),
-                key=f"mail_modificar_{i}_{j}"
+                key=f"mail_modificar_{version_carga}_{i}_{j}"
             )
         roles = ["Debatiente", "Capitán", "Suplente"]
 
@@ -382,7 +430,7 @@ for i in range(num_equipos):
             "Rol *",
             roles,
             index=indice_rol,
-            key=f"rol_modificar_{i}_{j}"
+            key=f"rol_modificar_{version_carga}_{i}_{j}"
     )
         miembros.append({
             "numero_participante": j + 1,
@@ -519,6 +567,14 @@ if st.button("Enviar solicitud"):
         cursor.execute(
             "SELECT id FROM centros WHERE denominacion = %s",
             (denominacion,)
+            """
+            SELECT id
+            FROM centros
+            WHERE correo = %s
+            ORDER BY id DESC
+            LIMIT 1
+            """,
+            (correo_centro,)
             )
         centro_id = cursor.fetchone()[0]
         for profesor_data in profesores:
@@ -557,7 +613,8 @@ if st.button("Enviar solicitud"):
         VALUES (%s, %s, %s, %s, %s)
         ON DUPLICATE KEY UPDATE 
         nombre_equipo = VALUES(nombre_equipo),
-        centro = VALUES(centro)
+        centro = VALUES(centro),
+        centro_id = VALUES(centro_id)
         """
         cursor.execute(sql_equipo, (
             torneo_id,
@@ -625,7 +682,9 @@ if st.button("Enviar solicitud"):
             curso = VALUES(curso),
             correo = VALUES(correo),
             rol = VALUES(rol),
-            centro = VALUES(centro)
+            centro = VALUES(centro),
+            torneo_id = VALUES(torneo_id),
+            equipo_id = VALUES(equipo_id)
             """
             valores = (
                 torneo_id,
