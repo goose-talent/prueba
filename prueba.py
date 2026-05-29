@@ -566,7 +566,7 @@ if st.button("Enviar solicitud"):
         conexion.commit()
         cursor.execute(
             "SELECT id FROM centros WHERE denominacion = %s",
-            (denominacion,)
+            (denominacion)
             """
             SELECT id
             FROM centros
